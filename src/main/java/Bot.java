@@ -75,27 +75,24 @@ public class Bot extends ListenerAdapter {
 if (mesaj.equalsIgnoreCase(".sil")) {
     Guild guild = event.getGuild();
     Member member = event.getMember();
-
+    
     if (member == null) {
         event.getChannel().sendMessage("Üye bilgisi alınamadı.").queue();
         return;
     }
-
-    // Yönetici izni kontrolü
+    
     if (!member.hasPermission(Permission.ADMINISTRATOR)) {
         event.getChannel().sendMessage("Bu komutu kullanmak için **Yönetici** izni gerekli!").queue();
         return;
     }
-
+    
     event.getChannel().sendMessage("🗑️ Kanallar siliniyor...").queue();
-
-    // Tüm kanalları sil
-    guild.getChannels().forEach(channel -> {
-        channel.delete().queue(
-                success -> System.out.println("Kanal silindi: " + channel.getName()),
-                error -> System.err.println("Kanal silinemedi: " + error.getMessage())
-        );
+    
+    guild.getChannels().stream().forEach(channel -> {
+        try {
+            channel.delete().complete();
+        } catch (Exception e) {
+            System.err.println("Kanal silinemedi: " + e.getMessage());
+        }
     });
-
-    event.getChannel().sendMessage("✅ Tüm kanallar silindi!").queue();
 }
